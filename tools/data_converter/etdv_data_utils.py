@@ -1,7 +1,40 @@
 from concurrent import futures as futures
 from pathlib import Path
 
-from .kitti_data_utils import get_velodyne_path, get_label_path
+from .kitti_data_utils import get_label_path
+
+
+def get_etdv_info_path(idx,
+                       prefix,
+                       info_type='velodyne',
+                       file_tail='.bin',
+                       training=True,
+                       relative_path=True,
+                       exist_check=True):
+    pc_idx_str = idx
+    pc_idx_str += file_tail
+    prefix = Path(prefix)
+
+    if training:
+        file_path = Path('training') / info_type / pc_idx_str
+    else:
+        file_path = Path('testing') / info_type / pc_idx_str
+    if exist_check and not (prefix / file_path).exists():
+        raise ValueError('file not exist: {}'.format(file_path))
+    if relative_path:
+        return str(file_path)
+    else:
+        return str(prefix / file_path)
+
+
+def get_velodyne_path(idx,
+                      prefix,
+                      training=True,
+                      relative_path=True,
+                      exist_check=True,
+                      use_prefix_id=False):
+    return get_etdv_info_path(idx, prefix, 'velodyne', '.bin', training,
+                              relative_path, exist_check, use_prefix_id)
 
 
 def get_etdv_pc_info(path,
@@ -45,6 +78,7 @@ def get_etdv_pc_info(path,
     root_path = Path(path)
     if not isinstance(pointcloud_ids, list):
         pointcloud_ids = list(range(pointcloud_ids))
+        pointcloud_ids = ["pointcloud_" + str(pc_id) for pc_id in pointcloud_ids]
 
     def map_func(idx):
         info = {}

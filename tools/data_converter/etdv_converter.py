@@ -27,9 +27,9 @@ def create_etdv_info_file(data_path,
             Default: True.
     """
     imageset_folder = Path(data_path) / 'ImageSets'
-    train_ptcld_ids = _read_imageset_file(str(imageset_folder / 'train.txt'))
-    val_ptcld_ids = _read_imageset_file(str(imageset_folder / 'val.txt'))
-    test_ptcld_ids = _read_imageset_file(str(imageset_folder / 'test.txt'))
+    train_pc_ids = _read_imageset_file(str(imageset_folder / 'train.txt'))
+    val_pc_ids = _read_imageset_file(str(imageset_folder / 'val.txt'))
+    test_pc_ids = _read_imageset_file(str(imageset_folder / 'test.txt'))
 
     print('Generate info. this may take several minutes.')
     if save_path is None:
@@ -40,7 +40,7 @@ def create_etdv_info_file(data_path,
     etdv_infos_train = get_etdv_pc_info(
         data_path,
         training=True,
-        pointcloud_ids=train_ptcld_ids,
+        pointcloud_ids=train_pc_ids,
         relative_path=relative_path)
 
     print(etdv_infos_train.keys())
@@ -56,7 +56,7 @@ def create_etdv_info_file(data_path,
         velodyne=True,
         calib=True,
         with_plane=with_plane,
-        pointcloud_ids=val_ptcld_ids,
+        pointcloud_ids=val_pc_ids,
         relative_path=relative_path)
     _calculate_num_points_in_gt(data_path, kitti_infos_val, relative_path)
     filename = save_path / f'{pkl_prefix}_infos_val.pkl'
@@ -73,7 +73,7 @@ def create_etdv_info_file(data_path,
         velodyne=True,
         calib=True,
         with_plane=False,
-        pointcloud_ids=test_ptcld_ids,
+        pointcloud_ids=test_pc_ids,
         relative_path=relative_path)
     filename = save_path / f'{pkl_prefix}_infos_test.pkl'
     print(f'Kitti info test file is saved to {filename}')
