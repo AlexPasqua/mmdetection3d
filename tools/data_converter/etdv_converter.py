@@ -1,6 +1,15 @@
+import mmcv
+import numpy as np
 from pathlib import Path
 
 from .etdv_data_utils import get_etdv_pc_info
+
+
+def _calculate_num_points_in_gt(infos):
+    for info in mmcv.track_iter_progress(infos):
+        annos = info['annos']
+        num_obj = len([n for n in annos['name']])     # if n != 'DontCare'])
+        annos['num_points_in_gt'] = -np.ones(num_obj).astype(np.int32)
 
 
 def _read_imageset_file(path):
@@ -43,10 +52,17 @@ def create_etdv_info_file(data_path,
         pointcloud_ids=train_pc_ids,
         relative_path=relative_path)
 
-    print(etdv_infos_train[0])
-    exit()
+    # it seems that the number of points is used only in db_sampler.py, for filterning ground truths
+    # by number of points in the bbox.
+    # We might skip this filtering and consider all the boxes, regardless of the number of points in them.
+    # For now this func is a dummy that puts a dummy value as the number of points in each box:
+        # this dummy value might be 0, 1, n, or -1 (-1 is currently used for boxes of class DontCare)
+        # currently using -1
+    _calculate_num_points_in_gt(etdv_infos_train)
 
-    _calculate_num_points_in_gt(data_path, etdv_infos_train, relative_path)
+    print(etdv_infos_train[0]['annos'])
+    exit()
+    
     filename = save_path / f'{pkl_prefix}_infos_train.pkl'
     print(f'Kitti info train file is saved to {filename}')
     mmcv.dump(etdv_infos_train, filename)
