@@ -4,10 +4,22 @@ from os import path as osp
 
 from tools.data_converter import indoor_converter as indoor
 from tools.data_converter import kitti_converter as kitti
+from tools.data_converter import etdv_converter as etdv
 from tools.data_converter import lyft_converter as lyft_converter
 from tools.data_converter import nuscenes_converter as nuscenes_converter
 from tools.data_converter.create_gt_database import (
     create_groundtruth_database, GTDatabaseCreater)
+
+
+def etdv_data_prep(root_path, info_prefix, out_dir):
+    """Prepare data related to ETDV dataset
+
+    Args:
+        root_path (str): Path of dataset root.
+        info_prefix (str): The prefix of info filenames.
+        out_dir (str): Output directory of the groundtruth database info.
+    """
+    etdv.create_etdv_info_file(data_path=root_path, pkl_prefix=info_prefix)
 
 
 def kitti_data_prep(root_path,
@@ -236,6 +248,11 @@ if __name__ == '__main__':
             version=args.version,
             out_dir=args.out_dir,
             with_plane=args.with_plane)
+    elif args.dataset == 'etdv':
+        etdv_data_prep(
+            root_path=args.root_path,
+            info_prefix=args.extra_tag,
+            out_dir=args.out_dir)
     elif args.dataset == 'nuscenes' and args.version != 'v1.0-mini':
         train_version = f'{args.version}-trainval'
         nuscenes_data_prep(

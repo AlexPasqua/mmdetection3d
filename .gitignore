@@ -88,6 +88,7 @@ celerybeat-schedule
 .venv
 env/
 venv/
+venv-mmdetection3d/
 ENV/
 env.bak/
 venv.bak/

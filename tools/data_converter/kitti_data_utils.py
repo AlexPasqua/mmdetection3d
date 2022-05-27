@@ -11,6 +11,8 @@ from skimage import io
 
 
 def get_image_index_str(img_idx, use_prefix_id=False):
+    print(img_idx)
+    exit()
     if use_prefix_id:
         return '{:07d}'.format(img_idx)
     else:
@@ -28,6 +30,10 @@ def get_kitti_info_path(idx,
     img_idx_str = get_image_index_str(idx, use_prefix_id)
     img_idx_str += file_tail
     prefix = Path(prefix)
+
+    print(img_idx_str)
+    exit()
+
     if training:
         file_path = Path('training') / info_type / img_idx_str
     else:
