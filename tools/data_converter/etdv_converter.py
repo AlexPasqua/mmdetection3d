@@ -43,7 +43,7 @@ def create_etdv_info_file(data_path,
         pointcloud_ids=train_pc_ids,
         relative_path=relative_path)
 
-    print(etdv_infos_train.keys())
+    print(etdv_infos_train[0])
     exit()
 
     _calculate_num_points_in_gt(data_path, etdv_infos_train, relative_path)
