@@ -53,7 +53,8 @@ class ETDVDataset(Custom3DDataset):
                  box_type_3d='LiDAR',
                  filter_empty_gt=True,
                  test_mode=False,
-                 file_client_args=dict(backend='disk')):
+                 file_client_args=dict(backend='disk'),
+                 **kwargs):
         super().__init__(data_root,
                          ann_file,
                          pipeline,
