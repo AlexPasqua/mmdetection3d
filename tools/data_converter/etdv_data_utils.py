@@ -36,7 +36,7 @@ def get_velodyne_path(idx, prefix, training=True, relative_path=True, exist_chec
         exit()
 
 
-def get_etdv_pc_info(path, training=True, label_info=True, pointcloud_ids=350, num_worker=8, relative_path=True):
+def get_etdv_pc_info(path, training=True, label_info=True, pc_ids=350, num_worker=8, relative_path=True):
     """
     ETDV annotation format is a reduced version of KITTI annotation format.
 
@@ -68,9 +68,9 @@ def get_etdv_pc_info(path, training=True, label_info=True, pointcloud_ids=350, n
     }
     """
     root_path = Path(path)
-    if not isinstance(pointcloud_ids, list):
-        pointcloud_ids = list(range(pointcloud_ids))
-        pointcloud_ids = ["pointcloud_" + str(pc_id) for pc_id in pointcloud_ids]
+    if not isinstance(pc_ids, list):
+        pc_ids = list(range(pc_ids))
+        pc_ids = ["pointcloud_" + str(pc_id) for pc_id in pc_ids]
 
     def map_func(idx):
         info = {}
@@ -145,6 +145,6 @@ def get_etdv_pc_info(path, training=True, label_info=True, pointcloud_ids=350, n
         return info
 
     with futures.ThreadPoolExecutor(num_worker) as executor:
-        image_infos = executor.map(map_func, pointcloud_ids)
+        image_infos = executor.map(map_func, pc_ids)
 
     return list(image_infos)
