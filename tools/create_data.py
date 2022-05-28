@@ -21,6 +21,15 @@ def etdv_data_prep(root_path, info_prefix, out_dir):
     """
     etdv.create_etdv_info_file(data_path=root_path, pkl_prefix=info_prefix)
 
+    # for now let's skip the 'create_reduced_point_cloud' that 'kitti_data_prep' has
+
+    create_groundtruth_database(
+        'ETDVDataset',
+        root_path,
+        info_prefix,
+        f'{out_dir}/{info_prefix}_infos_train.pkl',
+        relative_path=False,)
+
 
 def kitti_data_prep(root_path,
                     info_prefix,
