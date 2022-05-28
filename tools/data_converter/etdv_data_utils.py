@@ -1,7 +1,6 @@
+import numpy as np
 from concurrent import futures as futures
 from pathlib import Path
-
-from .kitti_data_utils import get_label_anno
 
 
 def get_etdv_info_path(idx, prefix, info_type='velodyne', file_tail='.bin', training=True, relative_path=True, exist_check=True):
@@ -36,6 +35,46 @@ def get_velodyne_path(idx, prefix, training=True, relative_path=True, exist_chec
         exit()
 
 
+def get_label_anno(label_path):
+    annotations = {}
+    annotations.update({
+        'box_type_3d': 'LiDAR',
+        'gt_names': [],
+        'truncated': [],
+        'occluded': [],
+        'alpha': [],
+        'gt_bboxes_3d': [],
+        'dimensions': [],
+        'location': [],
+        'rotation_y': []
+    })
+    with open(label_path, 'r') as f:
+        lines = f.readlines()
+    # if len(lines) == 0 or len(lines[0]) < 15:
+    #     content = []
+    # else:
+    content = [line.strip().split(' ') for line in lines]
+    num_objects = len([x[0] for x in content if x[0] != 'DontCare'])
+    annotations['gt_names'] = np.array([x[0] for x in content])
+    num_gt = len(annotations['gt_names'])
+    annotations['truncated'] = np.array([float(x[1]) for x in content])
+    annotations['occluded'] = np.array([int(x[2]) for x in content])
+    annotations['alpha'] = np.array([float(x[3]) for x in content])
+    annotations['gt_bboxes_3d'] = np.array([[float(info) for info in x[4:8]] for x in content]).reshape(-1, 4)
+    # dimensions will convert hwl format to standard lhw(camera) format.
+    annotations['dimensions'] = np.array([[float(info) for info in x[8:11]] for x in content]).reshape(-1, 3)[:, [2, 0, 1]]
+    annotations['location'] = np.array([[float(info) for info in x[11:14]] for x in content]).reshape(-1, 3)
+    annotations['rotation_y'] = np.array([float(x[14]) for x in content]).reshape(-1)
+    if len(content) != 0 and len(content[0]) == 16:  # have score
+        annotations['score'] = np.array([float(x[15]) for x in content])
+    else:
+        annotations['score'] = np.zeros((annotations['bbox'].shape[0], ))
+    index = list(range(num_objects)) + [-1] * (num_gt - num_objects)
+    annotations['index'] = np.array(index, dtype=np.int32)
+    annotations['group_ids'] = np.arange(num_gt, dtype=np.int32)
+    return annotations
+
+
 def get_etdv_pc_info(path, training=True, label_info=True, pc_ids=350, num_worker=8, relative_path=True):
     """
     ETDV annotation format is a reduced version of KITTI annotation format.
@@ -66,6 +105,8 @@ def get_etdv_pc_info(path, training=True, label_info=True, pc_ids=350, num_worke
             [optional]group_ids: used for multi-part object
         }
     }
+
+    Since ETDVDataset does not have images, we add the field 'sample_idx' that substitutes image_idx
     """
     root_path = Path(path)
     if not isinstance(pc_ids, list):
@@ -73,19 +114,19 @@ def get_etdv_pc_info(path, training=True, label_info=True, pc_ids=350, num_worke
         pc_ids = ["pointcloud_" + str(pc_id) for pc_id in pc_ids]
 
     def map_func(idx):
-        info = {}
+        info = {'sample_idx': idx}
         pc_info = {'num_features': 4}
         annotations = None
-        pc_info['velodyne_path'] = get_velodyne_path(
+        pc_info['lidar_path'] = get_velodyne_path(
             idx, path, training, relative_path)
         
         if label_info:
             label_path = get_label_path(idx, path, training, relative_path)
             if relative_path:
                 label_path = str(root_path / label_path)
-            annotations = get_label_anno(label_path)    # use directly KITTI's func since our labels are in the same format
+            annotations = get_label_anno(label_path)
 
-        info['point_cloud'] = pc_info
+        info['lidar_points'] = pc_info
         
         # if calib:
         #     calib_path = get_calib_path(
