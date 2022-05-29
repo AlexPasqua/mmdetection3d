@@ -143,8 +143,8 @@ def create_groundtruth_database(dataset_class_name,
             Default: False.
     """
     print(f'Create GT Database of {dataset_class_name}')
-    dataset_cfg = dict(
-        type=dataset_class_name, data_root=data_path, ann_file=info_path)
+    dataset_cfg = dict(type=dataset_class_name, data_root=data_path, ann_file=info_path)
+
     if dataset_class_name == 'KittiDataset':
         file_client_args = dict(backend='disk')
         dataset_cfg.update(
@@ -270,6 +270,7 @@ def create_groundtruth_database(dataset_class_name,
         points = example['points'].tensor.numpy()
         gt_boxes_3d = annos['gt_bboxes_3d'].tensor.numpy()
         names = annos['gt_names']
+
         group_dict = dict()
         if 'group_ids' in annos:
             group_ids = annos['group_ids']

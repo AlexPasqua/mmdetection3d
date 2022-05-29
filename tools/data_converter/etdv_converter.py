@@ -8,7 +8,7 @@ from .etdv_data_utils import get_etdv_pc_info
 def _calculate_num_points_in_gt(infos):
     for info in mmcv.track_iter_progress(infos):
         annos = info['annos']
-        num_obj = len([n for n in annos['name']])     # if n != 'DontCare'])
+        num_obj = len([n for n in annos['gt_names']])     # if n != 'DontCare'])
         annos['num_points_in_gt'] = -np.ones(num_obj).astype(np.int32)
 
 

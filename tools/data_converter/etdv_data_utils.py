@@ -68,7 +68,7 @@ def get_label_anno(label_path):
     if len(content) != 0 and len(content[0]) == 16:  # have score
         annotations['score'] = np.array([float(x[15]) for x in content])
     else:
-        annotations['score'] = np.zeros((annotations['bbox'].shape[0], ))
+        annotations['score'] = np.zeros((annotations['gt_bboxes_3d'].shape[0], ))
     index = list(range(num_objects)) + [-1] * (num_gt - num_objects)
     annotations['index'] = np.array(index, dtype=np.int32)
     annotations['group_ids'] = np.arange(num_gt, dtype=np.int32)
@@ -186,6 +186,6 @@ def get_etdv_pc_info(path, training=True, label_info=True, pc_ids=350, num_worke
         return info
 
     with futures.ThreadPoolExecutor(num_worker) as executor:
-        image_infos = executor.map(map_func, pc_ids)
+        pc_infos = executor.map(map_func, pc_ids)
 
-    return list(image_infos)
+    return list(pc_infos)
