@@ -231,7 +231,7 @@ def train_detector(model,
     else:
         model = MMDataParallel(
             model.cuda(cfg.gpu_ids[0]), device_ids=cfg.gpu_ids)
-
+    
     # build runner
     optimizer = build_optimizer(model, cfg.optimizer)
 
@@ -246,7 +246,7 @@ def train_detector(model,
     else:
         if 'total_epochs' in cfg:
             assert cfg.total_epochs == cfg.runner.max_epochs
-
+    
     runner = build_runner(
         cfg.runner,
         default_args=dict(
@@ -255,7 +255,7 @@ def train_detector(model,
             work_dir=cfg.work_dir,
             logger=logger,
             meta=meta))
-
+    
     # an ugly workaround to make .log and .log.json filenames the same
     runner.timestamp = timestamp
 
@@ -268,7 +268,7 @@ def train_detector(model,
         optimizer_config = OptimizerHook(**cfg.optimizer_config)
     else:
         optimizer_config = cfg.optimizer_config
-
+    
     # register hooks
     runner.register_training_hooks(
         cfg.lr_config,
@@ -281,7 +281,7 @@ def train_detector(model,
     if distributed:
         if isinstance(runner, EpochBasedRunner):
             runner.register_hook(DistSamplerSeedHook())
-
+    
     # register eval hooks
     if validate:
         # Support batch_size > 1 in validation
@@ -304,7 +304,7 @@ def train_detector(model,
         # priority of IterTimerHook has been modified from 'NORMAL' to 'LOW'.
         runner.register_hook(
             eval_hook(val_dataloader, **eval_cfg), priority='LOW')
-
+    
     resume_from = None
     if cfg.resume_from is None and cfg.get('auto_resume'):
         resume_from = find_latest_checkpoint(cfg.work_dir)
